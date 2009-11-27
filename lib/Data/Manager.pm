@@ -155,6 +155,10 @@ Cory G Watson, C<< <gphat at cpan.org> >>
 
 =head1 ACKNOWLEDGEMENTS
 
+Jay Shirley
+
+Brian Cassidy
+
 =head1 COPYRIGHT & LICENSE
 
 Copyright 2009 Cory G Watson.
