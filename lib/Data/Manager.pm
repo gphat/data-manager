@@ -1,8 +1,12 @@
 package Data::Manager;
 use Moose;
+use MooseX::Storage;
+
+with Storage(format => 'JSON');
 
 use Message::Stack;
 use Message::Stack::DataVerifier;
+
 
 our $VERSION = '0.01';
 
@@ -33,7 +37,7 @@ has 'results' => (
 );
 
 has 'verifiers' => (
-    traits => [ 'Hash' ],
+    traits => [ 'Hash', 'DoNotSerialize' ],
     is => 'ro',
     isa => 'HashRef',
     default => sub { {} },
@@ -121,6 +125,18 @@ redirects.
     
     my $ship_results = $dm->get_results('shipping_address');
     my $ship_stack = $dm->messages_for_scope('shipping_address);
+
+=head1 SERIALIZATION
+
+The Data::Manager object may be serialized thusly:
+
+  my $ser = $dm->freeze;
+  # later
+  my $dm = Data::Manager->thaw($ser);
+
+This is possible thanks to the magic of L<MooseX::Storage>.  All attribute
+B<except> C<verifiers> are stored.  B<Serialization causes the verifiers
+attribute to be set to undefined, as those objects are not serializable>.
 
 =head1 ATTRIBUTES
 

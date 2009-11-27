@@ -9,6 +9,8 @@ build_requires 'Test::More';
 
 requires 'Data::Verifier';
 requires 'Message::Stack';
+requires 'MooseX::Storage';
+requires 'JSON::Any';
 
 WriteAll;
 
