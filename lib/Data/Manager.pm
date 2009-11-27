@@ -1,6 +1,7 @@
 package Data::Manager;
 use Moose;
 
+use Message::Stack;
 use Message::Stack::DataVerifier;
 
 our $VERSION = '0.01';
@@ -51,7 +52,7 @@ sub verify {
     my $results = $verifier->verify($data);
     $self->set_results($scope, $results);
 
-    Message::Stack::DataVerifier->parser($self, $self->messages, $scope, $results);
+    Message::Stack::DataVerifier->parse($self->messages, $scope, $results);
 
     return $results;
 }
@@ -110,7 +111,7 @@ redirects.
         # ... more
     };
 
-    $dm->verify('billing_address', $ship_data);
+    $dm->verify('billing_address', $bill_data);
     $dm->verify('shipping_address', $ship_data);
     
     # Later...
