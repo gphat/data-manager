@@ -7,8 +7,8 @@ license  'perl';
 
 build_requires 'Test::More';
 
-requires 'Data::Verifier';
-requires 'Message::Stack';
+requires 'Data::Verifier' => '0.23';
+requires 'Message::Stack' => '0.11';
 requires 'MooseX::Storage';
 requires 'JSON::Any';
 

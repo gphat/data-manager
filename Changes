@@ -1,5 +1,9 @@
 Revision history for Data-Manager
 
+0.02    November 30th, 2009
+ - Use MooseX::Storage::Deferred
+ - Bump deps
+
 0.01    Date/time
         First version, released on an unsuspecting world.
 

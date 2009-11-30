@@ -2,13 +2,12 @@ package Data::Manager;
 use Moose;
 use MooseX::Storage;
 
-with Storage(format => 'JSON');
+with 'MooseX::Storage::Deferred';
 
 use Message::Stack;
 use Message::Stack::DataVerifier;
 
-
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 has 'messages' => (
     is => 'ro',
@@ -130,9 +129,9 @@ redirects.
 
 The Data::Manager object may be serialized thusly:
 
-  my $ser = $dm->freeze;
+  my $ser = $dm->freeze({ format => 'JSON' });
   # later
-  my $dm = Data::Manager->thaw($ser);
+  my $dm = Data::Manager->thaw($ser, { format => 'JSON' });
 
 This is possible thanks to the magic of L<MooseX::Storage>.  All attribute
 B<except> C<verifiers> are stored.  B<Serialization causes the verifiers

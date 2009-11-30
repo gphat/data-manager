@@ -25,10 +25,10 @@ ok(defined($dm->get_verifier('name1')), 'get_verifier');
 
 $dm->verify('name1', { name_first => 'Cory' });
 
-my $ser = $dm->freeze;
+my $ser = $dm->freeze({ format => 'JSON' });
 ok(defined($ser), 'serialized');
 
-my $thawed = Data::Manager->thaw($ser);
+my $thawed = Data::Manager->thaw($ser, { format => 'JSON' });
 
 my $results = $thawed->get_results('name1');
 isa_ok($results, 'Data::Verifier::Results');
