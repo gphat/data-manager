@@ -1,5 +1,9 @@
 Revision history for Data-Manager
 
+0.03    December 2nd, 2009
+ - Don't process results with Message::Stack until lazy init time, allowing
+   the user to manipulate the results if they want.
+
 0.02    November 30th, 2009
  - Use MooseX::Storage::Deferred
  - Bump deps

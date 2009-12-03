@@ -12,8 +12,7 @@ our $VERSION = '0.02';
 has 'messages' => (
     is => 'ro',
     isa => 'Message::Stack',
-    default => sub { Message::Stack->new },
-    lazy => 1,
+    lazy_build => 1,
     handles => {
         'messages_for_scope' => 'for_scope',
     }
@@ -46,6 +45,22 @@ has 'verifiers' => (
     }
 );
 
+sub _build_messages {
+    my ($self) = @_;
+
+    # We lazily build the messages to avoid parsing the results until the last
+    # possible moment.  This lets the user fiddle with the results if they
+    # want.
+
+    my $stack = Message::Stack->new;
+    foreach my $scope (keys %{ $self->results }) {
+        my $results = $self->get_results($scope);
+        Message::Stack::DataVerifier->parse($stack, $scope, $results);
+    }
+
+    return $stack;
+}
+
 sub verify {
     my ($self, $scope, $data) = @_;
 
@@ -54,8 +69,6 @@ sub verify {
 
     my $results = $verifier->verify($data);
     $self->set_results($scope, $results);
-
-    Message::Stack::DataVerifier->parse($self->messages, $scope, $results);
 
     return $results;
 }
@@ -141,7 +154,10 @@ attribute to be set to undefined, as those objects are not serializable>.
 
 =head2 messages
 
-The L<Message::Stack> object for this manager.
+The L<Message::Stack> object for this manager.  This attribute is lazily
+populated, parsing the L<Data::Verifier::Results> objects.  After fetching
+this attribute any changes to the results B<will not be reflected in the
+message stack>.
 
 =head2 results
 
