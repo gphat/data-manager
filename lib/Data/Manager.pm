@@ -7,7 +7,7 @@ with 'MooseX::Storage::Deferred';
 use Message::Stack;
 use Message::Stack::DataVerifier;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 has 'messages' => (
     is => 'ro',
