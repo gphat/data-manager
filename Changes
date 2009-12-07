@@ -1,5 +1,11 @@
 Revision history for Data-Manager
 
+0.06    December 7th, 2009
+  - POD updates
+
+0.05    December 7th, 2009
+ - Fix busted release from poor merging.
+
 0.04    December 2nd, 2009
  - Don't process results with Message::Stack until lazy init time, allowing
    the user to manipulate the results if they want.
