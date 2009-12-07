@@ -33,4 +33,17 @@ my $stack = $dm->messages_for_scope('name1');
 isa_ok($stack, 'Message::Stack');
 cmp_ok($stack->count, '==', 1, '1 message');
 
+ok(!$dm->success, 'verification did not succeed');
+
+{
+    my $dm2 = Data::Manager->new;
+    $dm2->set_verifier('name1', $verifier);
+    $dm2->verify('name1', { name_first => 'Cory', name_last => 'Watson' });
+    ok($dm2->success, 'successful');
+
+    $dm2->set_verifier('name2', $verifier);
+    $dm2->verify('name2', { name_first => 'Cory' });
+    ok(!$dm2->success, 'not successful');
+}
+
 done_testing;
