@@ -1,5 +1,8 @@
 Revision history for Data-Manager
 
+0.05    Jul 14, 2010
+  - Use Message::Stack::Parser::DataVerifier for parsing Data::Verifier results
+
 0.04    December 2nd, 2009
  - Don't process results with Message::Stack until lazy init time, allowing
    the user to manipulate the results if they want.
