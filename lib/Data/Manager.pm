@@ -5,7 +5,7 @@ use MooseX::Storage;
 with 'MooseX::Storage::Deferred';
 
 use Message::Stack;
-use Message::Stack::DataVerifier;
+use Message::Stack::Parser::DataVerifier;
 
 our $VERSION = '0.04';
 
@@ -55,7 +55,7 @@ sub _build_messages {
     my $stack = Message::Stack->new;
     foreach my $scope (keys %{ $self->results }) {
         my $results = $self->get_results($scope);
-        Message::Stack::DataVerifier->parse($stack, $scope, $results);
+        Message::Stack::Parser::DataVerifier->parse($stack, $scope, $results);
     }
 
     return $stack;
