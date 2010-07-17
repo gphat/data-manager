@@ -7,7 +7,7 @@ with 'MooseX::Storage::Deferred';
 use Message::Stack;
 use Message::Stack::Parser::DataVerifier;
 
-our $VERSION = '0.05';
+our $VERSION = '0.07';
 
 has 'messages' => (
     is => 'ro',
@@ -59,6 +59,16 @@ sub _build_messages {
     }
 
     return $stack;
+}
+
+sub success {
+    my ($self) = @_;
+
+    foreach my $res (keys %{ $self->results }) {
+        return 0 unless $self->get_results($res)->success;
+    }
+
+    return 1;
 }
 
 sub verify {
@@ -169,10 +179,23 @@ HashRef of L<Data::Verifier> objects, keyed by scope.
 
 =head1 METHODS
 
+=head2 get_results ($scope)
+
+Gets the L<Data::Verifier::Results> object for the specified scope.
+
 =head2 messages_for_scope ($scope)
 
 Returns a L<Message::Stack> object containing messages for the specified
 scope.
+
+=head2 set_results ($scope, $results)
+
+Sets the L<Data::Verifier::Results> object for the specified scope.
+
+=head2 success
+
+Convenience method that checks C<success> on each of the results in this
+manager.  Returns false if any are false.
 
 =head2 verify ($scope, $data);
 
