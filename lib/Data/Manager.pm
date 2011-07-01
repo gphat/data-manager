@@ -209,6 +209,8 @@ Cory G Watson, C<< <gphat at cpan.org> >>
 
 =head1 ACKNOWLEDGEMENTS
 
+Justin Hunter
+
 Jay Shirley
 
 Brian Cassidy

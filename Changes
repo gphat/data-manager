@@ -1,5 +1,8 @@
 Revision history for Data-Manager
 
+0.07    Jul 1, 2011
+  - Fix typos in POD (arcanez)
+
 0.06    Jul 16, 2010
   - Use Message::Stack::Parser::DataVerifier for parsing Data::Verifier 
 
