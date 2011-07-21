@@ -99,7 +99,8 @@ scope.
 has 'messages' => (
     is => 'ro',
     isa => 'Message::Stack',
-    lazy_build => 1,
+    lazy => 1,
+    default => sub { Message::Stack->new },
     handles => {
         'messages_for_scope' => 'for_scope',
     }
@@ -152,22 +153,6 @@ has 'verifiers' => (
     }
 );
 
-sub _build_messages {
-    my ($self) = @_;
-
-    # We lazily build the messages to avoid parsing the results until the last
-    # possible moment.  This lets the user fiddle with the results if they
-    # want.
-
-    my $stack = Message::Stack->new;
-    foreach my $scope (keys %{ $self->results }) {
-        my $results = $self->get_results($scope);
-        Message::Stack::Parser::DataVerifier->parse($stack, $scope, $results);
-    }
-
-    return $stack;
-}
-
 =method success
 
 Convenience method that checks C<success> on each of the results in this
@@ -201,6 +186,8 @@ sub verify {
 
     my $results = $verifier->verify($data);
     $self->set_results($scope, $results);
+
+    Message::Stack::Parser::DataVerifier->parse($self->messages, $scope, $results);
 
     return $results;
 }
