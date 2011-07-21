@@ -4,92 +4,10 @@ use MooseX::Storage;
 
 with 'MooseX::Storage::Deferred';
 
+# ABSTRACT: The Marriage of Message::Stack & Data::Verifier
+
 use Message::Stack;
 use Message::Stack::Parser::DataVerifier;
-
-our $VERSION = '0.07';
-
-has 'messages' => (
-    is => 'ro',
-    isa => 'Message::Stack',
-    lazy_build => 1,
-    handles => {
-        'messages_for_scope' => 'for_scope',
-    }
-);
-
-has '_parser' => (
-    is => 'ro',
-    isa => 'Message::Stack::DataVerifier',
-);
-
-has 'results' => (
-    traits => [ 'Hash' ],
-    is => 'ro',
-    isa => 'HashRef',
-    default => sub { {} },
-    handles => {
-        'set_results' => 'set',
-        'get_results' => 'get'
-    }
-);
-
-has 'verifiers' => (
-    traits => [ 'Hash', 'DoNotSerialize' ],
-    is => 'ro',
-    isa => 'HashRef',
-    default => sub { {} },
-    handles => {
-        'set_verifier' => 'set',
-        'get_verifier' => 'get'
-    }
-);
-
-sub _build_messages {
-    my ($self) = @_;
-
-    # We lazily build the messages to avoid parsing the results until the last
-    # possible moment.  This lets the user fiddle with the results if they
-    # want.
-
-    my $stack = Message::Stack->new;
-    foreach my $scope (keys %{ $self->results }) {
-        my $results = $self->get_results($scope);
-        Message::Stack::Parser::DataVerifier->parse($stack, $scope, $results);
-    }
-
-    return $stack;
-}
-
-sub success {
-    my ($self) = @_;
-
-    foreach my $res (keys %{ $self->results }) {
-        return 0 unless $self->get_results($res)->success;
-    }
-
-    return 1;
-}
-
-sub verify {
-    my ($self, $scope, $data) = @_;
-
-    my $verifier = $self->get_verifier($scope);
-    die("No verifier for scope: $scope") unless defined($verifier);
-
-    my $results = $verifier->verify($data);
-    $self->set_results($scope, $results);
-
-    return $results;
-}
-
-1;
-
-__END__
-
-=head1 NAME
-
-Data::Manager - The Marriage of Message::Stack & Data::Verifier
 
 =head1 DESCRIPTION
 
@@ -148,6 +66,8 @@ redirects.
     my $ship_results = $dm->get_results('shipping_address');
     my $ship_stack = $dm->messages_for_scope('shipping_address');
 
+=begin :prelude
+
 =head1 SERIALIZATION
 
 The Data::Manager object may be serialized thusly:
@@ -160,52 +80,132 @@ This is possible thanks to the magic of L<MooseX::Storage>.  All attributes
 B<except> C<verifiers> are stored.  B<Serialization causes the verifiers
 attribute to be set to undefined, as those objects are not serializable>.
 
-=head1 ATTRIBUTES
+=end :prelude
 
-=head2 messages
+=attr messages
 
 The L<Message::Stack> object for this manager.  This attribute is lazily
 populated, parsing the L<Data::Verifier::Results> objects.  After fetching
 this attribute any changes to the results B<will not be reflected in the
 message stack>.
 
-=head2 results
-
-HashRef of L<Data::Verifier::Results> objects, keyed by scope.
-
-=head2 verifiers
-
-HashRef of L<Data::Verifier> objects, keyed by scope.
-
-=head1 METHODS
-
-=head2 get_results ($scope)
-
-Gets the L<Data::Verifier::Results> object for the specified scope.
-
-=head2 messages_for_scope ($scope)
+=method messages_for_scope ($scope)
 
 Returns a L<Message::Stack> object containing messages for the specified
 scope.
 
-=head2 set_results ($scope, $results)
+=cut
+
+has 'messages' => (
+    is => 'ro',
+    isa => 'Message::Stack',
+    lazy_build => 1,
+    handles => {
+        'messages_for_scope' => 'for_scope',
+    }
+);
+
+has '_parser' => (
+    is => 'ro',
+    isa => 'Message::Stack::DataVerifier',
+);
+
+=attr results
+
+HashRef of L<Data::Verifier::Results> objects, keyed by scope.
+
+=method get_results ($scope)
+
+Gets the L<Data::Verifier::Results> object for the specified scope.
+
+=method set_results ($scope, $results)
 
 Sets the L<Data::Verifier::Results> object for the specified scope.
 
-=head2 success
+=cut
+
+has 'results' => (
+    traits => [ 'Hash' ],
+    is => 'ro',
+    isa => 'HashRef',
+    default => sub { {} },
+    handles => {
+        'set_results' => 'set',
+        'get_results' => 'get'
+    }
+);
+
+=attr verifiers
+
+HashRef of L<Data::Verifier> objects, keyed by scope.
+
+=cut
+
+has 'verifiers' => (
+    traits => [ 'Hash', 'DoNotSerialize' ],
+    is => 'ro',
+    isa => 'HashRef',
+    default => sub { {} },
+    handles => {
+        'set_verifier' => 'set',
+        'get_verifier' => 'get'
+    }
+);
+
+sub _build_messages {
+    my ($self) = @_;
+
+    # We lazily build the messages to avoid parsing the results until the last
+    # possible moment.  This lets the user fiddle with the results if they
+    # want.
+
+    my $stack = Message::Stack->new;
+    foreach my $scope (keys %{ $self->results }) {
+        my $results = $self->get_results($scope);
+        Message::Stack::Parser::DataVerifier->parse($stack, $scope, $results);
+    }
+
+    return $stack;
+}
+
+=method success
 
 Convenience method that checks C<success> on each of the results in this
 manager.  Returns false if any are false.
 
-=head2 verify ($scope, $data);
+=cut
+
+sub success {
+    my ($self) = @_;
+
+    foreach my $res (keys %{ $self->results }) {
+        return 0 unless $self->get_results($res)->success;
+    }
+
+    return 1;
+}
+
+=method verify ($scope, $data);
 
 Verify the data against the specified scope.  After verification the results
 and messages will be automatically created and stored.  The
 L<Data::Verifier::Results> class will be returned.
 
-=head1 AUTHOR
+=cut
 
-Cory G Watson, C<< <gphat at cpan.org> >>
+sub verify {
+    my ($self, $scope, $data) = @_;
+
+    my $verifier = $self->get_verifier($scope);
+    die("No verifier for scope: $scope") unless defined($verifier);
+
+    my $results = $verifier->verify($data);
+    $self->set_results($scope, $results);
+
+    return $results;
+}
+
+=begin :postlude
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -215,13 +215,11 @@ Jay Shirley
 
 Brian Cassidy
 
-=head1 COPYRIGHT & LICENSE
+=end :postlude
 
-Copyright 2009 Cory G Watson.
+=cut
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
+__PACKAGE__->meta->make_immutable;
+no Moose;
 
-See http://dev.perl.org/licenses/ for more information.
-
+1;
