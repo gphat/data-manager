@@ -2,6 +2,9 @@ Revision history for Data-Manager
 
 {{$NEXT}}
   - Convert to Dist::Zilla
+  - Add results of a verify() to the message stack immediately, not at the
+    time that verify is called.  Cleans up edge-cases and problems.  This
+    behavior was not documented, so no reason to change docs. (jshirley)
 
 0.07    Jul 1, 2011
   - Fix typos in POD (arcanez)
