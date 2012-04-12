@@ -187,7 +187,7 @@ sub verify {
     my $results = $verifier->verify($data);
     $self->set_results($scope, $results);
 
-    Message::Stack::Parser::DataVerifier->parse($self->messages, $scope, $results);
+    Message::Stack::Parser::DataVerifier::parse($self->messages, $scope, $results);
 
     return $results;
 }

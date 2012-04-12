@@ -1,6 +1,7 @@
 Revision history for Data-Manager
 
 {{$NEXT}}
+  - Bump Message::Stack::Parser dependency
 
 0.09 Jul 21 2011
   - Convert to Dist::Zilla
