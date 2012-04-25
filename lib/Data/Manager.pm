@@ -148,10 +148,18 @@ has 'verifiers' => (
     isa => 'HashRef',
     default => sub { {} },
     handles => {
-        'set_verifier' => 'set',
-        'get_verifier' => 'get'
+        'set_verifier'  => 'set',
+        'get_verifier'  => 'get',
+        'scopes'        => 'keys'
     }
 );
+
+=method scopes
+
+Returns a list of verifier keys, which is all the scopes the Data::Manager
+instance can operate on.
+
+=cut
 
 =method success
 

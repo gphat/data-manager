@@ -15,7 +15,12 @@ my $verifier = Data::Verifier->new(
         },
         name_last => {
             required => 1,
-            type => 'Str'
+            type => 'Str',
+            max_length => 10,
+        },
+        post_check => {
+            type => 'Str',
+            post_check => sub { die "Override message id\n"; }
         }
     }
 );
@@ -34,6 +39,32 @@ isa_ok($stack, 'Message::Stack');
 cmp_ok($stack->count, '==', 1, '1 message');
 
 ok(!$dm->success, 'verification did not succeed');
+
+cmp_ok(join(" ", $dm->scopes), 'eq', 'name1', 'scopes is right');
+$dm->set_verifier('name2', $verifier);
+
+cmp_ok(join(" ", sort $dm->scopes), 'eq', 'name1 name2', 'scopes is still right');
+
+{
+    my $dm = Data::Manager->new;
+    $dm->set_verifier('name1', $verifier);
+    my $results = $dm->verify('name1',
+        {
+            name_first => 'Cory',
+            name_last  => 'Corythosaurus',
+            post_check  => 'Fail this'
+        });
+    ok(!$results->success, 'invalid verify');
+
+    my $stack = $dm->messages_for_scope('name1')->for_subject('name_last');
+    cmp_ok($stack->count, '==', 1, '1 message');
+    is($stack->first->msgid, 'invalid_name_last', 'correct invalid');
+
+    my $stack2 = $dm->messages_for_scope('name1')->for_subject('post_check');
+    cmp_ok($stack2->count, '==', 1, '1 message');
+    is($stack2->first->params->[1], "Override message id\n", 'correct override msgid');
+
+}
 
 {
     my $dm2 = Data::Manager->new;
